@@ -1,0 +1,101 @@
+﻿<Window x:Class="ImageEditor.TestUnit.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ImageEditor.TestUnit"
+        xmlns:converters="clr-namespace:ImageEditor.TestUnit.Converters"
+        xmlns:dT="clr-namespace:DiscordThemes.WPF;assembly=DiscordThemes.WPF"
+        mc:Ignorable="d"
+        Title="MainWindow"
+        Height="450"
+        Width="800"
+        Background="{StaticResource BackgroundPrimary}"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+
+        <!--#region Presentation -->
+        <Grid>
+            <Grid.Resources>
+                <converters:BitmaptoBitmapImage x:Key="bmpConverter"/>
+                <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody1}"/>
+            </Grid.Resources>
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Height: "/>
+                    <TextBlock Text="{Binding OgBmp.Height}"/>
+                    <TextBlock Text="Width: "/>
+                    <TextBlock Text="{Binding OgBmp.Width}"/>
+                </StackPanel>
+
+                <dT:ScrollViewer Grid.Column="1">
+                    <Image Source="{Binding OgBmp, Converter={StaticResource bmpConverter}}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Stretch="None"/>
+                </dT:ScrollViewer>
+            </Grid>
+
+            <Separator Grid.Row="1" Margin="10"/>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+
+                <StackPanel>
+                    <TextBlock Text="Height: "/>
+                    <TextBlock Text="{Binding ProcessedBmp.Height}"/>
+                    <TextBlock Text="Width: "/>
+                    <TextBlock Text="{Binding ProcessedBmp.Width}"/>
+                </StackPanel>
+
+                <dT:ScrollViewer Grid.Column="1"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalContentAlignment="Center">
+                    <Image Source="{Binding ProcessedBmp, Converter={StaticResource bmpConverter}}"
+                           Stretch="None"/>
+                </dT:ScrollViewer>
+            </Grid>
+
+        </Grid>
+        <!--#endregion-->
+
+        <!--#region Buttons -->
+        <UniformGrid Grid.Column="1"
+                     Rows="3">
+            <Button Content="Import"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Click="importButton_Click"/>
+            <Button Content="Process"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Click="processButton_Click"/>
+            <Button Content="Export"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Click="exportButton_Click"/>
+        </UniformGrid>
+        <!--#endregion-->
+    </Grid>
+</Window>
