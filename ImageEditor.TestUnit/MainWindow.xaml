@@ -10,7 +10,7 @@
         Title="MainWindow"
         Height="450"
         Width="800"
-        Background="{StaticResource BackgroundPrimary}"
+        Background="{StaticResource BackgroundSecondary}"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
@@ -38,18 +38,39 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel>
-                    <TextBlock Text="Height: "/>
-                    <TextBlock Text="{Binding OgBmp.Height}"/>
-                    <TextBlock Text="Width: "/>
-                    <TextBlock Text="{Binding OgBmp.Width}"/>
-                </StackPanel>
+                <dT:Block Header="DEBUG"
+                          HeaderStyle="{StaticResource DiscordTextBlockHeader2}"
+                          Width="100">
+                    <dT:Block.Resources>
+                        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody2}">
+                            <Setter Property="FontSize" Value="12"/>
+                        </Style>
+                    </dT:Block.Resources>
 
-                <dT:ScrollViewer Grid.Column="1">
-                    <Image Source="{Binding OgBmp, Converter={StaticResource bmpConverter}}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Stretch="None"/>
+                    <StackPanel>
+                        <TextBlock Text="Height:"/>
+                        <TextBlock Text="{Binding BmpOriginal.Height}"/>
+                        <TextBlock Text="Width:"/>
+                        <TextBlock Text="{Binding BmpOriginal.Width}"/>
+                        <TextBlock Text="Render Height:"/>
+                        <TextBlock Text="{Binding Height, ElementName=ImageOg}"/>
+                        <TextBlock Text="Display Width:"/>
+                        <TextBlock Text="{Binding Width, ElementName=ImageOg}"/>
+                    </StackPanel>
+                </dT:Block>
+
+                <dT:ScrollViewer Grid.Column="1"
+                                 Background="{StaticResource BackgroundPrimary}"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 Margin="10,0,10,0"
+                                 PreviewMouseWheel="SVOg_PreviewMouseWheel">
+                    <Grid HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                        <Image x:Name="ImageOg"
+                               Source="{Binding BmpOriginal, Converter={StaticResource bmpConverter}}"
+                               Height="{Binding BmpOriginal.Height}"
+                               Width="{Binding BmpOriginal.Width}"/>
+                    </Grid>
                 </dT:ScrollViewer>
             </Grid>
 
@@ -62,18 +83,39 @@
                 </Grid.ColumnDefinitions>
 
 
-                <StackPanel>
-                    <TextBlock Text="Height: "/>
-                    <TextBlock Text="{Binding ProcessedBmp.Height}"/>
-                    <TextBlock Text="Width: "/>
-                    <TextBlock Text="{Binding ProcessedBmp.Width}"/>
-                </StackPanel>
+                <dT:Block Header="DEBUG"
+                          HeaderStyle="{StaticResource DiscordTextBlockHeader2}"
+                          Width="100">
+                    <dT:Block.Resources>
+                        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody2}">
+                            <Setter Property="FontSize" Value="12"/>
+                        </Style>
+                    </dT:Block.Resources>
+
+                    <StackPanel>
+                        <TextBlock Text="Height:"/>
+                        <TextBlock Text="{Binding BmpProcessed.Height}"/>
+                        <TextBlock Text="Width:"/>
+                        <TextBlock Text="{Binding BmpProcessed.Width}"/>
+                        <TextBlock Text="Render Height:"/>
+                        <TextBlock Text="{Binding Height, ElementName=ImageP}"/>
+                        <TextBlock Text="Display Width:"/>
+                        <TextBlock Text="{Binding Width, ElementName=ImageP}"/>
+                    </StackPanel>
+                </dT:Block>
 
                 <dT:ScrollViewer Grid.Column="1"
-                                 HorizontalContentAlignment="Center"
-                                 VerticalContentAlignment="Center">
-                    <Image Source="{Binding ProcessedBmp, Converter={StaticResource bmpConverter}}"
-                           Stretch="None"/>
+                                 Background="{StaticResource BackgroundPrimary}"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 Margin="10,0,10,0"
+                                 PreviewMouseWheel="SVP_PreviewMouseWheel">
+                    <Grid HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                        <Image x:Name="ImageP"
+                               Source="{Binding BmpProcessed, Converter={StaticResource bmpConverter}}"
+                               Height="{Binding BmpProcessed.Height}"
+                               Width="{Binding BmpProcessed.Width}"/>
+                    </Grid>
                 </dT:ScrollViewer>
             </Grid>
 
