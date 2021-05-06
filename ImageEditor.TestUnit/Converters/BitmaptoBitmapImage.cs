@@ -16,9 +16,6 @@ namespace ImageEditor.TestUnit.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null)
-                return new BitmapImage(new Uri("pack://application:,,,/ImageEditor.TestUnit;component/Assets/404NotFound.jpg"));
-
             Bitmap input = (Bitmap)value;
             using (MemoryStream memory = new MemoryStream())
             {
