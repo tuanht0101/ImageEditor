@@ -12,7 +12,6 @@ namespace ImageEditor.TestUnit
         #region DO NOT CHANGE
         // Original Imported Bitmap
         private readonly Bitmap originalBitmap;
-        public Bitmap OriginalBitmap { get => originalBitmap; }
         #endregion
 
         public MainClass(Bitmap originalBitmap)
@@ -29,40 +28,35 @@ namespace ImageEditor.TestUnit
         /// <returns>Bitmap</returns>
         public Bitmap Process()
         {
-            Bitmap bitmap = new Bitmap(200, 200);
-            for (int x = 0; x < bitmap.Width; x++)
+            // Create Bitmap with Size of 100 x 100
+            // SetPixel() set x y of bitmap with Color.FromArgb(alpha, red, green, blue)
+            // GetPixel() get Color from x y
+            Bitmap bmpR = new Bitmap(100, 100);
+            for (int x = 0; x < bmpR.Width; x++)
             {
-                for (int y = 0; y < bitmap.Height; y++)
+                for (int y = 0; y < bmpR.Height; y++)
                 {
-                    Color color;
-                    if (x % 2 == 1)
-                    {
-                        if (y % 2 == 1)
-                        {
-                            color = Color.FromArgb(255, 0, 0);
-                        }
-                        else
-                        {
-                            color = Color.FromArgb(0, 255, 0);
-                        }
-                    }
-                    else
-                    {
-                        if (y % 2 == 1)
-                        {
-                            color = Color.FromArgb(0, 0, 255);
-                        }
-                        else
-                        {
-                            color = Color.FromArgb(255, 0, 255);
-                        }
-                    }
-
-                    bitmap.SetPixel(x, y, color);
+                    bmpR.SetPixel(x, y, Color.FromArgb(127, 255, 0, 0));
                 }
             }
 
-            return bitmap;
+            Bitmap bmpG = new Bitmap(100, 100);
+            for (int x = 0; x < bmpG.Width; x++)
+            {
+                for (int y = 0; y < bmpG.Height; y++)
+                {
+                    bmpG.SetPixel(x, y, Color.FromArgb(127, 0, 255, 0));
+                }
+            }
+
+            // Dont care about this
+            using (var g = Graphics.FromImage(originalBitmap))
+            {
+                g.DrawImage(bmpR, 0, 0);
+                g.DrawImage(bmpG, 0, 0);
+            }
+
+            return originalBitmap;
         }
     }
 }
