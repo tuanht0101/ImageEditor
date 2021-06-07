@@ -1,0 +1,185 @@
+﻿<UserControl x:Class="ImageEditor.MainApp.Views.Tools.CropV"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImageEditor.MainApp.Views.Tools"
+             xmlns:validation="clr-namespace:ImageEditor.MainApp.ValidationRule"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:dt="clr-namespace:DiscordThemes.WPF;assembly=DiscordThemes.WPF"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance local:CropV, IsDesignTimeCreatable=True}"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <d:DesignerProperties.DesignStyle>
+        <Style TargetType="{x:Type UserControl}">
+            <Setter Property="Background" Value="{StaticResource BackgroundPrimary}"/>
+            <Setter Property="Height" Value="400"/>
+            <Setter Property="Width" Value="300"/>
+        </Style>
+    </d:DesignerProperties.DesignStyle>
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody1}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource DiscordTextBox1}">
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="dt:TextBoxAssist.HintVisibility" Value="Collapsed"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedLayer}" Value="{x:Null}">
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+
+        <StackPanel>
+            <dt:Block Header="CROP TOOL"
+                      dt:Block.HeaderMargin="0,0,0,12">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Layer:"/>
+                    <TextBlock TargetUpdated="SelectedLayerUpdate">
+                        <TextBlock.Text>
+                            <Binding Path="SelectedLayer.Name"
+                                     Mode="OneWay"
+                                     FallbackValue="Not Selected"
+                                     NotifyOnTargetUpdated="True"/>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+            </dt:Block>
+
+
+            <dt:Block Header="COORDINATE"
+                      HeaderStyle="{StaticResource DiscordTextBlockHeader2}"
+                      Margin="0,20,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="CustomSizeColumn"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="CustomSizeColumn"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" SharedSizeGroup="CustomSizeRow"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto" SharedSizeGroup="CustomSizeRow"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="X1"/>
+                    <TextBox x:Name="X1TBox"
+                             Grid.Column="1">
+                        <TextBox.Text>
+                            <Binding Path="X1"
+                                     Mode="TwoWay"
+                                     UpdateSourceTrigger="PropertyChanged"
+                                     FallbackValue="NaN">
+                                <Binding.ValidationRules>
+                                    <validation:NumberRangeRule Type="UInt" GreaterThanEqual="0"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock Grid.Column="2"
+                               Text="Y1"/>
+                    <TextBox x:Name="Y1TBox"
+                             Grid.Column="3">
+                        <TextBox.Text>
+                            <Binding Path="Y1"
+                                     Mode="TwoWay"
+                                     UpdateSourceTrigger="PropertyChanged"
+                                     FallbackValue="NaN">
+                                <Binding.ValidationRules>
+                                    <validation:NumberRangeRule Type="UInt" GreaterThanEqual="0"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+
+
+                    <TextBlock Grid.Row="2"
+                               Text="X2"/>
+                    <TextBox x:Name="X2TBox"
+                             Grid.Column="1" Grid.Row="2">
+                        <TextBox.Text>
+                            <Binding Path="X2"
+                                     Mode="TwoWay"
+                                     UpdateSourceTrigger="PropertyChanged"
+                                     FallbackValue="NaN">
+                                <Binding.ValidationRules>
+                                    <validation:NumberRangeRule Type="UInt" GreaterThanEqual="0"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBlock Grid.Column="2" Grid.Row="2"
+                               Text="Y2"/>
+                    <TextBox x:Name="Y2TBox"
+                             Grid.Column="3" Grid.Row="2">
+                        <TextBox.Text>
+                            <Binding Path="Y2"
+                                     Mode="TwoWay"
+                                     UpdateSourceTrigger="PropertyChanged"
+                                     FallbackValue="NaN">
+                                <Binding.ValidationRules>
+                                    <validation:NumberRangeRule Type="UInt" GreaterThanEqual="0"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+
+                    <StackPanel Grid.Column="4" Grid.RowSpan="3"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                        <dt:Block Header="RATIO"
+                                  HeaderStyle="{StaticResource DiscordTextBlockHeader2}"
+                                  HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding WidthRatio, Mode=OneWay, FallbackValue=NaN}"/>
+                            <TextBlock Text=":"/>
+                            <TextBlock Text="{Binding HeightRatio, Mode=OneWay, FallbackValue=NaN}" Margin="0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </dt:Block>
+
+        </StackPanel>
+
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Content="Revert"
+                    Command="{Binding RevertCommand}"
+                    CommandParameter="{Binding SelectedLayer}"
+                    Foreground="{StaticResource TextNormal}"
+                    Style="{StaticResource DiscordButtonFlatUnderline}"/>
+            <Button Content="Preview"
+                    Command="{Binding PreviewCommand}"
+                    CommandParameter="{Binding SelectedLayer}"
+                    Foreground="#7289DA"
+                    Margin="10,0,10,0"
+                    Style="{StaticResource DiscordButtonFlatLine}"/>
+            <Button Content="Apply"
+                    Command="{Binding ApplyCommand}"
+                    CommandParameter="{Binding SelectedLayer}"/>
+        </StackPanel>
+    </Grid>
+
+</UserControl>

@@ -99,7 +99,7 @@
                         <TextBlock Text="{Binding BmpProcessed.Width}"/>
                         <TextBlock Text="Render Height:"/>
                         <TextBlock Text="{Binding Height, ElementName=ImageP}"/>
-                        <TextBlock Text="Display Width:"/>
+                        <TextBlock Text="Render Width:"/>
                         <TextBlock Text="{Binding Width, ElementName=ImageP}"/>
                     </StackPanel>
                 </dT:Block>

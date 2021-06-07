@@ -1,0 +1,265 @@
+﻿<UserControl x:Class="ImageEditor.MainApp.Views.Tools.Filters.EdgeDetectionV"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImageEditor.MainApp.Views.Tools.Filters"
+             xmlns:validation="clr-namespace:ImageEditor.MainApp.ValidationRule"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:dt="clr-namespace:DiscordThemes.WPF;assembly=DiscordThemes.WPF"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance local:EdgeDetectionV, IsDesignTimeCreatable=True}"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <d:DesignerProperties.DesignStyle>
+        <Style TargetType="{x:Type UserControl}">
+            <Setter Property="Background" Value="{StaticResource BackgroundPrimary}"/>
+            <Setter Property="Height" Value="665"/>
+            <Setter Property="Width" Value="300"/>
+        </Style>
+    </d:DesignerProperties.DesignStyle>
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody1}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource DiscordTextBox1}">
+            <Setter Property="Width" Value="60"/>
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+
+
+        <Style x:Key="LimitLeftSlider" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody1}">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Margin" Value="12,0,0,0"/>
+        </Style>
+
+        <Style x:Key="LimitRightSlider" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody1}">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+        </Style>
+
+        <Style TargetType="Slider" BasedOn="{StaticResource DiscordSlider}">
+            <Setter Property="Margin" Value="10,0,10,5"/>
+            <Setter Property="TickPlacement" Value="BottomRight"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+        </Style>
+    </UserControl.Resources>
+
+
+    <dt:ScrollViewer>
+        <StackPanel Margin="10">
+            <!--#region MINUS BLUR -->
+            <dt:Block Header="MINUS BLUR"
+                      HeaderStyle="{StaticResource DiscordTextBlockHeader2}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Amount"/>
+                    <TextBox x:Name="MBAmountTBox"
+                             dt:TextBoxAssist.HintText=">0">
+                        <TextBox.Text>
+                            <Binding Path="MBAmount"
+                                     Mode="OneWayToSource"
+                                     UpdateSourceTrigger="PropertyChanged"
+                                     FallbackValue="1">
+                                <Binding.ValidationRules>
+                                    <validation:NumberRangeRule Type="UInt" GreaterThan="0"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                </StackPanel>
+            </dt:Block>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,20,0,0">
+                <Button Content="Revert"
+                        Command="{Binding RevertCommand}"
+                        CommandParameter="{Binding SelectedLayer}"
+                        Style="{StaticResource DiscordButtonFlatUnderline}"/>
+                <Button Content="Preview"
+                        Command="{Binding MBPreviewCommand}"
+                        CommandParameter="{Binding SelectedLayer}"
+                        Foreground="#7289DA"
+                        Margin="5,0,10,0"
+                        Style="{StaticResource DiscordButtonFlatLine}"/>
+                <Button Content="Apply"
+                        Command="{Binding MBApplyCommand}"
+                        CommandParameter="{Binding SelectedLayer}"/>
+            </StackPanel>
+            <!--#endregion-->
+
+            <!--#region LAPLACIAN -->
+            <dt:Block Header="LAPLACIAN"
+                      HeaderStyle="{StaticResource DiscordTextBlockHeader2}"
+                      Margin="0,30,0,0">
+                <ComboBox SelectedIndex="{Binding LTypeSelectedIndex, Mode=OneWayToSource, FallbackValue=0}">
+                    <ComboBoxItem Content="Type 1 [0 -1 0] [-1 4 -1] [0 -1 0]"/>
+                    <ComboBoxItem Content="Type 2 [-1 -1 -1] [-1 8 -1] [-1 -1 -1]"/>
+                </ComboBox>
+            </dt:Block>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,20,0,0">
+                <Button Content="Revert"
+                        Command="{Binding RevertCommand}"
+                        CommandParameter="{Binding SelectedLayer}"
+                        Style="{StaticResource DiscordButtonFlatUnderline}"/>
+                <Button Content="Preview"
+                        Command="{Binding LPreviewCommand}"
+                        CommandParameter="{Binding SelectedLayer}"
+                        Foreground="#7289DA"
+                        Margin="5,0,10,0"
+                        Style="{StaticResource DiscordButtonFlatLine}"/>
+                <Button Content="Apply"
+                        Command="{Binding LApplyCommand}"
+                        CommandParameter="{Binding SelectedLayer}"/>
+            </StackPanel>
+            <!--#endregion-->
+
+            <!--#region LAPLACIAN OF GAUSSIAN -->
+            <dt:Block Header="LAPLACIAN OF GAUSSIAN"
+                      HeaderStyle="{StaticResource DiscordTextBlockHeader2}"
+                      Margin="0,30,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Radius"/>
+                    <TextBox Grid.Column="1"
+                             x:Name="LoGRadiusTBox"
+                             dt:TextBoxAssist.HintText=">0">
+                        <TextBox.Text>
+                            <Binding Path="LoGRadius"
+                                     Mode="OneWayToSource"
+                                     UpdateSourceTrigger="PropertyChanged"
+                                     FallbackValue="3">
+                                <Binding.ValidationRules>
+                                    <validation:NumberRangeRule Type="UInt" GreaterThan="0"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+
+
+                    <TextBlock Grid.Row="2"
+                               Text="Sigma"/>
+                    <TextBox Grid.Row="2" Grid.Column="1"
+                             x:Name="LoGSigmaTBox"
+                             Width="Auto"
+                             dt:TextBoxAssist.HintText=">0">
+                        <TextBox.Text>
+                            <Binding Path="LoGSigma"
+                                     Mode="OneWayToSource"
+                                     UpdateSourceTrigger="PropertyChanged"
+                                     FallbackValue="0.84089642">
+                                <Binding.ValidationRules>
+                                    <validation:NumberRangeRule Type="Double" GreaterThan="0"/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                </Grid>
+            </dt:Block>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="0,20,0,0">
+                <Button Content="Revert"
+                        Command="{Binding RevertCommand}"
+                        CommandParameter="{Binding SelectedLayer}"
+                        Style="{StaticResource DiscordButtonFlatUnderline}"/>
+                <Button Content="Preview"
+                        Command="{Binding LoGPreviewCommand}"
+                        CommandParameter="{Binding SelectedLayer}"
+                        Foreground="#7289DA"
+                        Margin="5,0,10,0"
+                        Style="{StaticResource DiscordButtonFlatLine}"/>
+                <Button Content="Apply"
+                        Command="{Binding LoGApplyCommand}"
+                        CommandParameter="{Binding SelectedLayer}"/>
+            </StackPanel>
+            <!--#endregion-->
+
+            <!--#region SOBEL VARIANTS -->
+            <dt:Block Header="SOBEL VARIANTS"
+                      HeaderStyle="{StaticResource DiscordTextBlockHeader2}"
+                      Margin="0,30,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Variants"/>
+
+                    <ComboBox Grid.Column="1"
+                              SelectedIndex="{Binding STypeSelectedIndex, Mode=OneWayToSource, FallbackValue=0}">
+                        <ComboBoxItem Content="Sobel"/>
+                        <ComboBoxItem Content="Sobel–Feldman"/>
+                        <ComboBoxItem Content="Scharr"/>
+                    </ComboBox>
+
+                    <TextBlock Grid.Row="2"
+                               Text="Threshold"/>
+
+                    <Slider Grid.Row="2" Grid.Column="1"
+                            AutoToolTipPlacement="TopLeft"
+                            Minimum="0"
+                            Maximum="100"
+                            SmallChange="10"
+                            LargeChange="10"
+                            TickFrequency="20"
+                            Value="{Binding SThresholdPercent, Mode=OneWayToSource, FallbackValue=20}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1"
+                               Text="0%"
+                               Style="{StaticResource LimitLeftSlider}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1"
+                               Text="100%"
+                               Style="{StaticResource LimitRightSlider}"/>
+                </Grid>
+            </dt:Block>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="0,20,0,0">
+                <Button Content="Revert"
+                        Command="{Binding RevertCommand}"
+                        CommandParameter="{Binding SelectedLayer}"
+                        Style="{StaticResource DiscordButtonFlatUnderline}"/>
+                <Button Content="Preview"
+                        Command="{Binding SPreviewCommand}"
+                        CommandParameter="{Binding SelectedLayer}"
+                        Foreground="#7289DA"
+                        Margin="5,0,10,0"
+                        Style="{StaticResource DiscordButtonFlatLine}"/>
+                <Button Content="Apply"
+                        Command="{Binding SApplyCommand}"
+                        CommandParameter="{Binding SelectedLayer}"/>
+            </StackPanel>
+            <!--#endregion-->
+        </StackPanel>
+    </dt:ScrollViewer>
+</UserControl>

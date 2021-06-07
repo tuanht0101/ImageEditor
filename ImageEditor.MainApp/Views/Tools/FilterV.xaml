@@ -1,0 +1,123 @@
+﻿<UserControl x:Class="ImageEditor.MainApp.Views.Tools.FilterV"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:ImageEditor.MainApp.Views.Tools"
+             xmlns:algorithms="clr-namespace:ImageEditor.MainApp.Algorithms"
+             xmlns:filters="clr-namespace:ImageEditor.MainApp.Views.Tools.Filters"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:dt="clr-namespace:DiscordThemes.WPF;assembly=DiscordThemes.WPF"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance local:FilterV, IsDesignTimeCreatable=True}"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             x:Name="FilterVUC">
+    <d:DesignerProperties.DesignStyle>
+        <Style TargetType="{x:Type UserControl}">
+            <Setter Property="Background" Value="{StaticResource BackgroundPrimary}"/>
+            <Setter Property="Height" Value="400"/>
+            <Setter Property="Width" Value="300"/>
+        </Style>
+    </d:DesignerProperties.DesignStyle>
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody1}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Margin="10">
+            <dt:Block Header="FILTER TOOL"
+                      dt:Block.HeaderMargin="0,0,0,12">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Layer:"/>
+                    <TextBlock>
+                        <TextBlock.Text>
+                            <Binding Path="SelectedLayer.Name"
+                                     Mode="OneWay"
+                                     FallbackValue="Not Selected"/>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+            </dt:Block>
+
+            <DockPanel Margin="0,20,0,0">
+                <TextBlock DockPanel.Dock="Left"
+                           Text="Filter"/>
+                <ComboBox x:Name="FilterCBox"
+                          SelectedIndex="0">
+                    <ComboBoxItem Content="Grayscale"/>
+                    <ComboBoxItem Content="Hue/Saturation"/>
+                    <ComboBoxItem Content="Brightness/Contrast"/>
+                    <ComboBoxItem Content="Blur"/>
+                    <ComboBoxItem Content="Edge Detection"/>
+                    <ComboBoxItem Content="Sharpen"/>
+                    <ComboBoxItem Content="Noise Reduction"/>
+                </ComboBox>
+            </DockPanel>
+            
+            <DockPanel Margin="0,20,0,0">
+                <DockPanel.Style>
+                    <Style TargetType="{x:Type DockPanel}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=FilterCBox, Path=SelectedIndex}"
+                                         Value="3">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=FilterCBox, Path=SelectedIndex}"
+                                         Value="4">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=FilterCBox, Path=SelectedIndex}"
+                                         Value="5">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=FilterCBox, Path=SelectedIndex}"
+                                         Value="6">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DockPanel.Style>
+                
+                <TextBlock DockPanel.Dock="Left"
+                           Text="Edge Handling"/>
+                <ComboBox SelectedIndex="{Binding EdgeHandingSelectedIndex, Mode=OneWayToSource, FallbackValue=0}">
+                    <ComboBoxItem Content="Extend"/>
+                    <ComboBoxItem Content="Wrap"/>
+                    <ComboBoxItem Content="Mirror"/>
+                    <ComboBoxItem Content="Crop"/>
+                    <ComboBoxItem Content="Constant"/>
+                </ComboBox>
+            </DockPanel>
+        </StackPanel>
+
+        <ListBox Grid.Row="1"
+                 Style="{StaticResource ListBoxDisplaySlot}"
+                 SelectedIndex="{Binding ElementName=FilterCBox, Path=SelectedIndex, Mode=OneWay}">
+            <filters:GrayscaleV SelectedLayer="{Binding ElementName=FilterVUC, Path=SelectedLayer, Mode=OneWay}"
+                                IsProcessingEnabled="{Binding ElementName=FilterVUC, Path=IsProcessingEnabled, Mode=OneWayToSource}"/>
+            <filters:HueSatV SelectedLayer="{Binding ElementName=FilterVUC, Path=SelectedLayer, Mode=OneWay}"
+                             IsProcessingEnabled="{Binding ElementName=FilterVUC, Path=IsProcessingEnabled, Mode=OneWayToSource}"/>
+            <filters:BriConV SelectedLayer="{Binding ElementName=FilterVUC, Path=SelectedLayer, Mode=OneWay}"
+                             IsProcessingEnabled="{Binding ElementName=FilterVUC, Path=IsProcessingEnabled, Mode=OneWayToSource}"/>
+            <filters:BlurV SelectedLayer="{Binding ElementName=FilterVUC, Path=SelectedLayer, Mode=OneWay}"
+                           IsProcessingEnabled="{Binding ElementName=FilterVUC, Path=IsProcessingEnabled, Mode=OneWayToSource}"/>
+            <filters:EdgeDetectionV SelectedLayer="{Binding ElementName=FilterVUC, Path=SelectedLayer, Mode=OneWay}"
+                                    IsProcessingEnabled="{Binding ElementName=FilterVUC, Path=IsProcessingEnabled, Mode=OneWayToSource}"/>
+            <filters:SharpenV SelectedLayer="{Binding ElementName=FilterVUC, Path=SelectedLayer, Mode=OneWay}"
+                              IsProcessingEnabled="{Binding ElementName=FilterVUC, Path=IsProcessingEnabled, Mode=OneWayToSource}"/>
+            <filters:NoiseReductionV SelectedLayer="{Binding ElementName=FilterVUC, Path=SelectedLayer, Mode=OneWay}"
+                                     IsProcessingEnabled="{Binding ElementName=FilterVUC, Path=IsProcessingEnabled, Mode=OneWayToSource}"/>
+        </ListBox>
+    </Grid>
+</UserControl>

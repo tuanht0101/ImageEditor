@@ -1,0 +1,95 @@
+﻿<UserControl x:Class="ImageEditor.MainApp.Views.CompositeTabs.CanvasV"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImageEditor.MainApp.Views.CompositeTabs"
+             xmlns:validation="clr-namespace:ImageEditor.MainApp.ValidationRule"
+             xmlns:vm="clr-namespace:ImageEditor.MainApp.ViewModels"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:dt="clr-namespace:DiscordThemes.WPF;assembly=DiscordThemes.WPF"
+             mc:Ignorable="d"
+             d:DesignHeight="235"
+             d:DesignWidth="317"
+             d:DataContext="{d:DesignInstance local:CanvasV, IsDesignTimeCreatable=True}"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             Background="{StaticResource BackgroundSecondary}">
+    <d:DesignerProperties.DesignStyle>
+        <Style TargetType="{x:Type UserControl}">
+            <Setter Property="Background" Value="{StaticResource BackgroundPrimary}"/>
+            <Setter Property="Height" Value="200"/>
+            <Setter Property="Width" Value="300"/>
+        </Style>
+    </d:DesignerProperties.DesignStyle>
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody1}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,10"/>
+        </Style>
+
+        <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource DiscordTextBox1}">
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,10"/>
+            <Setter Property="dt:TextBoxAssist.HintVisibility" Value="Collapsed"/>
+        </Style>
+    </UserControl.Resources>
+
+
+    <StackPanel Margin="10">
+        
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Width"/>
+            <TextBox Text="{Binding CanvasWidth, Mode=TwoWay}"/>
+            <md:PackIcon Kind="Close"
+                         Foreground="{StaticResource TextNormal}"
+                         Height="24"
+                         Width="24"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Margin="0,0,10,10"/>
+            <TextBlock Text="Height"/>
+            <TextBox Text="{Binding CanvasHeight, Mode=TwoWay}"/>
+        </StackPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Text="Background Color"/>
+            <TextBox Grid.Column="1">
+                <TextBox.Text>
+                    <Binding Path="BackgroundColor"
+                             Mode="OneWayToSource"
+                             UpdateSourceTrigger="PropertyChanged"
+                             FallbackValue="#10FFFFFF">
+                        <Binding.ValidationRules>
+                            <validation:ColorRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+        </Grid>
+        
+        <CheckBox Content="Render Canvas ?"
+                  IsChecked="{Binding IsRender, Mode=OneWayToSource, FallbackValue=True}"
+                  Margin="0,5,0,15"/>
+
+        <DockPanel>
+            <TextBlock Style="{StaticResource DiscordTextBlockBody2}">
+                Scale Canvas to largest
+                <LineBreak/>
+                 Height and Width among layers
+            </TextBlock>
+            <Button DockPanel.Dock="Right"
+                    Content="Scale"
+                    HorizontalAlignment="Right"
+                    Click="ScaleBtn_Click"/>
+        </DockPanel>
+    </StackPanel>
+</UserControl>

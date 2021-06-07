@@ -7,10 +7,10 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ImageEditor.MainApp")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("ImageEditor")]
+[assembly: AssemblyDescription("Image Processing Window App")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Corn207")]
 [assembly: AssemblyProduct("ImageEditor.MainApp")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]

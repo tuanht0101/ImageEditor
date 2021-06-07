@@ -3,14 +3,609 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=PresentationFramework"
         xmlns:local="clr-namespace:ImageEditor.MainApp"
+        xmlns:converters="clr-namespace:ImageEditor.MainApp.Converters"
+        xmlns:vm="clr-namespace:ImageEditor.MainApp.ViewModels"
+        xmlns:dialogs="clr-namespace:ImageEditor.MainApp.Views.Dialogs"
+        xmlns:compositeTabs="clr-namespace:ImageEditor.MainApp.Views.CompositeTabs"
+        xmlns:tools="clr-namespace:ImageEditor.MainApp.Views.Tools"
         xmlns:dt="clr-namespace:DiscordThemes.WPF;assembly=DiscordThemes.WPF"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow"
-        Height="450"
-        Width="800"
-        Background="{StaticResource BackgroundPrimary}">
+        Width="1280"
+        Height="720"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        Background="{StaticResource BackgroundTertiary}"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0"/>
+    </WindowChrome.WindowChrome>
+
+
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!--#region WINDOW TITLE -->
+        <Grid Background="{StaticResource BackgroundTertiary}"
+              Height="22"
+              MouseDown="WindowTitle_MouseDown">
+            <x:Code>
+                <![CDATA[  
+                void WindowTitle_MouseDown(object sender, MouseButtonEventArgs e) => DragMove();
+                ]]>
+            </x:Code>
+
+            <TextBlock FontFamily="{StaticResource Whitney}"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource TextMuted}"
+                       Margin="10,0,0,0"
+                       VerticalAlignment="Center"
+                       Text="IMAGE EDITOR"/>
+
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Button Style="{StaticResource DiscordButtonTitleMinimize}"
+                        Click="AppMinimize">
+                    <x:Code>
+                        <![CDATA[  
+                        void AppMinimize(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+                        ]]>
+                    </x:Code>
+                </Button>
+
+                <Button Style="{StaticResource DiscordButtonTitleMaximize}"
+                        Click="AppMaximize">
+                    <x:Code>
+                        <![CDATA[  
+                        void AppMaximize(object sender, RoutedEventArgs e)  
+                        {  
+                            if(WindowState == WindowState.Normal)
+                                WindowState = WindowState.Maximized;
+                            else WindowState = WindowState.Normal;
+                        }
+                        ]]>
+                    </x:Code>
+                </Button>
+
+                <Button Style="{StaticResource DiscordButtonTitleClose}"
+                        Click="AppClose">
+                    <x:Code>
+                        <![CDATA[  
+                        void AppClose(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
+                        ]]>
+                    </x:Code>
+                </Button>
+            </StackPanel>
+        </Grid>
+        <!--#endregion-->
+
         
+        <!--#region BODY APP -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition MinWidth="300" Width="300" MaxWidth="300"/>
+            </Grid.ColumnDefinitions>
+
+
+            <!--#region EDITOR -->
+            <Border x:Name="EditorBorder"
+                    Background="{StaticResource BackgroundSecondary}"
+                    CornerRadius="0,5,5,0"/>
+
+
+            <!--#region RENDERER -->
+            <ScrollViewer x:Name="RendererSV"
+                          Background="Transparent"
+                          HorizontalScrollBarVisibility="Hidden"
+                          VerticalScrollBarVisibility="Hidden"
+                          Margin="5"
+                          MouseDown="Renderer_MouseDown"
+                          MouseMove="Renderer_MouseMove"
+                          MouseUp="Renderer_MouseUp"
+                          PreviewMouseDown="Renderer_PreviewMouseDown"
+                          PreviewMouseUp="Renderer_PreviewMouseUp"
+                          PreviewMouseWheel="Renderer_PreviewMouseWheel">
+                <ScrollViewer.ContextMenu>
+                    <ContextMenu Style="{StaticResource DiscordContextMenu}">
+                        <MenuItem Header="Center Canvas to screen"
+                                  Click="CenterCanvas"/>
+                        <MenuItem Header="Reset Zoom"
+                                  Command="{Binding ResetZoom}"/>
+                        <MenuItem Style="{StaticResource DiscordContextMenuSeparator}"
+                                  Command="{Binding CenterLayer}"
+                                  CommandParameter="{Binding SelectedLayer}"/>
+                        <MenuItem Header="Center Layer to Canvas"
+                                  Command="{Binding CenterLayer}"
+                                  CommandParameter="{Binding SelectedLayer}"/>
+                        <MenuItem Header="Reset Layer Offset"
+                                  Command="{Binding ResetLayerOffset}"
+                                  CommandParameter="{Binding SelectedLayer}"/>
+                    </ContextMenu>
+                </ScrollViewer.ContextMenu>
+
+                <ScrollViewer.Style>
+                    <Style TargetType="{x:Type ScrollViewer}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=OrientationToolLBI, Path=IsSelected}" Value="True">
+                                <Setter Property="Cursor" Value="SizeAll"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=CropToolLBI, Path=IsSelected}" Value="True">
+                                <Setter Property="Cursor" Value="Cross"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=LayersV, Path=SelectedLayer}" Value="{x:Null}">
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ScrollViewer.Style>
+
+
+                <Grid>
+                    <Grid x:Name="CompositeGrid"
+                          Height="{Binding ElementName=CanvasV, Path=CanvasHeight, Mode=OneWay}"
+                          Width="{Binding ElementName=CanvasV, Path=CanvasWidth, Mode=OneWay}"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top">
+                        <Grid.Style>
+                            <Style TargetType="{x:Type Grid}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=CanvasV, Path=IsRender}"
+                                                 Value="True">
+                                        <Setter Property="Background" Value="{Binding ElementName=CanvasV, Path=BackgroundColor, Mode=OneWay}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        
+                        <Grid.RenderTransform>
+                            <TranslateTransform x:Name="CompositeGridTrans"
+                                                Changed="ReshapeHighlight"/>
+                        </Grid.RenderTransform>
+                        <Grid.LayoutTransform>
+                            <ScaleTransform x:Name="CompositeGridScale"
+                                            ScaleX="1"
+                                            ScaleY="{Binding ScaleX, RelativeSource={RelativeSource Self}}"
+                                            Changed="ReshapeHighlight"/>
+                        </Grid.LayoutTransform>
+
+                        
+                        <!--#region LAYERS RENDERER -->
+                        <ScrollViewer HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      PreviewMouseWheel="DisableMouseWheelScroll">
+                            <ListBox x:Name="LayersLBox"
+                                     ItemsSource="{Binding ElementName=LayersV, Path=ImageLayers, Mode=OneWay}"
+                                     SelectedIndex="{Binding ElementName=LayersV, Path=SelectedLayerIndex, Mode=OneWay}"
+                                     Focusable="False">
+                                <ListBox.Style>
+                                    <Style TargetType="{x:Type ListBox}">
+                                        <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                        <Setter Property="ItemContainerStyle">
+                                            <Setter.Value>
+                                                <Style TargetType="{x:Type ListBoxItem}">
+                                                    <Setter Property="Focusable" Value="False"/>
+                                                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                                                    <Setter Property="VerticalAlignment" Value="Top"/>
+                                                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                                <ContentPresenter/>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Setter.Value>
+                                        </Setter>
+                                        
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type ListBox}">
+                                                    <Grid IsItemsHost="True"/>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.Style>
+
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding RenderedBitmap, Mode=OneWay, Converter={StaticResource BmpConverter}}"
+                                               Height="{Binding RenderedBitmap.Height, Mode=OneWay}"
+                                               Width="{Binding RenderedBitmap.Width, Mode=OneWay}">
+                                            <Image.RenderTransform>
+                                                <TranslateTransform X="{Binding XOffset, Mode=OneWay}"
+                                                                    Y="{Binding YOffset, Mode=OneWay}"
+                                                                    Changed="ReshapeSelectedHighlight"/>
+                                            </Image.RenderTransform>
+
+                                            <Image.Style>
+                                                <Style TargetType="{x:Type Image}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsVisible}" Value="False">
+                                                            <Setter Property="Visibility" Value="Hidden"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </ScrollViewer>
+                        <!--#endregion-->
+                    </Grid>
+
+                    
+                    <!--#region CANVAS HIGHLIGHT -->
+                    <Border x:Name="CanvasHighlightBorder"
+                            BorderBrush="#FF7289DA"
+                            BorderThickness="2"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Margin="-2,-2,-2,-2"
+                            Visibility="Collapsed">
+                        <Border.RenderTransform>
+                            <TranslateTransform x:Name="CanvasHighlightBorderTrans"/>
+                        </Border.RenderTransform>
+                        <Border.LayoutTransform>
+                            <ScaleTransform x:Name="CanvasHighlightBorderScale"/>
+                        </Border.LayoutTransform>
+                        
+                        <Grid Height="{Binding ElementName=CanvasV, Path=CanvasHeight, Mode=OneWay}"
+                              Width="{Binding ElementName=CanvasV, Path=CanvasWidth, Mode=OneWay}"/>
+                    </Border>
+                    <!--#endregion-->
+                    
+                    <!--#region SELECTED HIGHLIGHT -->
+                    <Border BorderBrush="#FF7289DA"
+                            BorderThickness="2"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Margin="-2,-2,-2,-2">
+                        <Border.RenderTransform>
+                            <TranslateTransform x:Name="SelectedHighlightTrans"/>
+                        </Border.RenderTransform>
+                        <Border.LayoutTransform>
+                            <ScaleTransform x:Name="SelectedHighlightScale"/>
+                        </Border.LayoutTransform>
+
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=LayersV, Path=SelectedLayer}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ElementName=CanvasHighlightBorder, Path=Visibility}" Value="Visible">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ElementName=LayersV, Path=IsHighlightRendered}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Grid Height="{Binding ElementName=LayersV, Path=SelectedLayer.RenderedBitmap.Height, Mode=OneWay}"
+                              Width="{Binding ElementName=LayersV, Path=SelectedLayer.RenderedBitmap.Width, Mode=OneWay}"/>
+                    </Border>
+                    <!--#endregion-->
+                </Grid>
+            </ScrollViewer>
+            <!--#endregion-->
+
+            
+            <!--#region TOOL BAR -->
+            <ListBox x:Name="ToolListBox"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Top"
+                     Margin="20"
+                     SelectedIndex="0">
+                <ListBox.Style>
+                    <Style TargetType="{x:Type ListBox}">
+                        <Setter Property="OverridesDefaultStyle" Value="True"/>
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+
+                        <Setter Property="ItemContainerStyle">
+                            <Setter.Value>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Style.Resources>
+                                        <Style TargetType="{x:Type ToolTip}" BasedOn="{StaticResource DiscordToolTip}"/>
+                                    </Style.Resources>
+
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="{StaticResource InteractiveNormal}"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Height" Value="24"/>
+                                    <Setter Property="Width" Value="24"/>
+                                    <Setter Property="Margin" Value="2"/>
+                                    <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+                                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="4"
+                                                        Padding="4">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource InteractiveHover}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource BackgroundTertiary}"/>
+                                            <Setter Property="Foreground" Value="{StaticResource InteractiveActive}"/>
+                                            <Setter Property="Cursor" Value="Arrow"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Setter.Value>
+                        </Setter>
+
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBox}">
+                                    <Border Background="{StaticResource BackgroundPrimary}"
+                                            CornerRadius="4"
+                                            Padding="4">
+                                        <StackPanel IsItemsHost="True"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.Style>
+
+
+                <ListBoxItem x:Name="OrientationToolLBI"
+                             ToolTip="Orientation">
+                    <md:PackIcon Kind="CropRotate"/>
+                </ListBoxItem>
+
+                <ListBoxItem x:Name="CropToolLBI"
+                             ToolTip="Crop">
+                    <md:PackIcon Kind="Crop"/>
+                </ListBoxItem>
+
+                <ListBoxItem ToolTip="Scaling">
+                    <md:PackIcon Kind="ImageSizeSelectLarge"/>
+                </ListBoxItem>
+
+                <ListBoxItem ToolTip="Filter">
+                    <md:PackIcon Kind="MovieFilter"/>
+                </ListBoxItem>
+
+                <ListBoxItem ToolTip="Settings">
+                    <md:PackIcon Kind="Settings"/>
+                </ListBoxItem>
+
+            </ListBox>
+            <!--#endregion-->
+            
+            
+            <!--#region INDICATOR-->
+            <Border Background="{StaticResource BackgroundPrimary}"
+                    CornerRadius="4"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Margin="20"
+                    Padding="8">
+                <Border.Resources>
+                    <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource DiscordTextBlockBody1}">
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Margin" Value="0,0,5,0"/>
+                    </Style>
+
+                    <Style x:Key="Sign" TargetType="{x:Type TextBlock}"
+                           BasedOn="{StaticResource DiscordTextBlockBody1}">
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="Margin" Value="0,0,5,0"/>
+
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=LayersV, Path=SelectedLayer}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Resources>
+                
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding ElementName=LayersV, Path=SelectedLayer.RenderedBitmap.Width, Mode=OneWay}"
+                               Style="{StaticResource Sign}"/>
+                    <TextBlock Text="x" Style="{StaticResource Sign}"/>
+                    <TextBlock Text="{Binding ElementName=LayersV, Path=SelectedLayer.RenderedBitmap.Height, Mode=OneWay}"
+                               Style="{StaticResource Sign}"/>
+                    <TextBlock Text="|" Style="{StaticResource Sign}"/>
+                    
+                    <TextBlock Text="Zoom"/>
+                    <TextBox Text="{Binding ElementName=CompositeGridScale, Path=ScaleX, Mode=TwoWay, Converter={StaticResource DoubleToIntPercent}}"
+                             FontSize="14"
+                             Height="Auto"
+                             HorizontalContentAlignment="Center"
+                             Padding="0,2,0,2"
+                             dt:TextBoxAssist.HintVisibility="Collapsed"
+                             KeyDown="ZoomLevelTBox_KeyDown"/>
+                    <TextBlock Text="%"
+                               Margin="5,0,0,0"/>
+                </StackPanel>
+            </Border>
+            <!--#endregion-->
+            
+            <!--#endregion-->
+
+            
+            <!--#region PANELS -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*" MinHeight="400"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="2*" MinHeight="200"/>
+                </Grid.RowDefinitions>
+
+
+                <!--#region TOOL PANEL -->
+                <Border Background="{StaticResource BackgroundPrimary}"
+                        CornerRadius="5,0,0,5">
+                    <Grid>
+                        <ListBox Style="{StaticResource ListBoxDisplaySlot}"
+                                 SelectedIndex="{Binding ElementName=ToolListBox, Path=SelectedIndex, Mode=OneWay}">
+                            <tools:OrientationV SelectedLayer="{Binding ElementName=LayersV, Path=SelectedLayer, Mode=OneWay}"
+                                                IsProcessingEnabled="{Binding ElementName=ProcessingDialog, Path=IsEnabled, Mode=OneWayToSource}"/>
+                            <tools:CropV x:Name="CropVTools"
+                                         SelectedLayer="{Binding ElementName=LayersV, Path=SelectedLayer, Mode=OneWay}"
+                                         IsProcessingEnabled="{Binding ElementName=ProcessingDialog, Path=IsEnabled, Mode=OneWayToSource}"/>
+                            <tools:ScaleV SelectedLayer="{Binding ElementName=LayersV, Path=SelectedLayer, Mode=OneWay}"
+                                          IsProcessingEnabled="{Binding ElementName=ProcessingDialog, Path=IsEnabled, Mode=OneWayToSource}"/>
+                            <tools:FilterV SelectedLayer="{Binding ElementName=LayersV, Path=SelectedLayer, Mode=OneWay}"
+                                           IsProcessingEnabled="{Binding ElementName=ProcessingDialog, Path=IsEnabled, Mode=OneWayToSource}"/>
+                            <tools:SettingsV SelectedLayer="{Binding ElementName=LayersV, Path=SelectedLayer, Mode=OneWay}"
+                                             IsProcessingEnabled="{Binding ElementName=ProcessingDialog, Path=IsEnabled, Mode=OneWayToSource}"/>
+                        </ListBox>
+
+                        <dialogs:Processing x:Name="ProcessingDialog"/>
+                    </Grid>
+                </Border>
+                <!--#endregion-->
+
+
+                <GridSplitter Grid.Row="1"
+                              Background="Transparent"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"/>
+
+
+                <!--#region COMPOSITE PANEL -->
+                <Border Grid.Row="2"
+                        Background="{StaticResource BackgroundPrimary}"
+                        CornerRadius="5,0,0,5">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <ListBox x:Name="CompositeTabListBox"
+                                 SelectedIndex="0">
+                            <ListBox.Style>
+                                <Style TargetType="{x:Type ListBox}">
+                                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+
+                                    <Setter Property="ItemContainerStyle">
+                                        <Setter.Value>
+                                            <Style TargetType="{x:Type ListBoxItem}">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="{StaticResource InteractiveNormal}"/>
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Setter Property="FontFamily" Value="{StaticResource Whitney}"/>
+                                                <Setter Property="FontSize" Value="16"/>
+                                                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                                <Setter Property="VerticalAlignment" Value="Top"/>
+                                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    CornerRadius="5,5,0,0"
+                                                                    Padding="20,10,20,10">
+                                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource BackgroundSecondary}"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource InteractiveActive}"/>
+                                                        <Setter Property="Cursor" Value="Arrow"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Setter.Value>
+                                    </Setter>
+
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBox}">
+                                                <UniformGrid Columns="3" IsItemsHost="True"/>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.Style>
+
+                            <ListBoxItem Content="LAYERS"/>
+                            <ListBoxItem Content="CANVAS"/>
+                            <ListBoxItem Content="EXPORT"/>
+                        </ListBox>
+
+                        <ListBox Grid.Row="1"
+                                 Style="{StaticResource ListBoxDisplaySlot}"
+                                 SelectedIndex="{Binding ElementName=CompositeTabListBox, Path=SelectedIndex, Mode=OneWay}">
+                            <compositeTabs:LayersV x:Name="LayersV"
+                                                   d:DataContext="{d:DesignInstance vm:LayersVM, IsDesignTimeCreatable=True}"
+                                                   ImageLayers="{Binding ImageLayers, Mode=OneWay}"
+                                                   IsHighlightRendered="{Binding IsHighlightRendered, Mode=OneWay}"
+                                                   SelectedLayer="{Binding SelectedImageLayer, Mode=OneWay}"
+                                                   SelectedLayerIndex="{Binding SelectedLayerIndex, Mode=OneWay}"
+                                                   SelectedLayerChanged="ReshapeSelectedHighlight"/>
+                            <compositeTabs:CanvasV x:Name="CanvasV"
+                                                   d:DataContext="{d:DesignInstance compositeTabs:CanvasV, IsDesignTimeCreatable=True}"
+                                                   ImageLayers="{Binding ElementName=LayersV, Path=ImageLayers, Mode=OneWay}"/>
+                            <compositeTabs:ExportV CanvasHeight="{Binding ElementName=CanvasV, Path=CanvasHeight, Mode=OneWay}"
+                                                   CanvasWidth="{Binding ElementName=CanvasV, Path=CanvasWidth, Mode=OneWay}"
+                                                   ImageLayers="{Binding ElementName=LayersV, Path=ImageLayers, Mode=OneWay}"
+                                                   SelectedLayer="{Binding ElementName=LayersV, Path=SelectedLayer, Mode=OneWay}"/>
+                        </ListBox>
+                    </Grid>
+                </Border>
+                <!--#endregion-->
+
+            </Grid>
+            <!--#endregion-->
+        </Grid>
+        <!--#endregion-->
+
+        <ContentControl x:Name="DialogHost"
+                        Grid.Row="1">
+            <ContentControl.Style>
+                <Style TargetType="{x:Type ContentControl}">
+                    <Style.Triggers>
+                        <Trigger Property="Content" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="cm:DesignerProperties.IsInDesignMode" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+
+            <dialogs:NewCanvasDialog ImageLayers="{Binding ElementName=LayersV, Path=ImageLayers, Mode=OneWay}"
+                                     CanvasHeight="{Binding ElementName=CanvasV, Path=CanvasHeight, Mode=OneWayToSource}"
+                                     CanvasWidth="{Binding ElementName=CanvasV, Path=CanvasWidth, Mode=OneWayToSource}"
+                                     Unloaded="NewCanvasDialog_Unloaded"/>
+        </ContentControl>
     </Grid>
 </Window>

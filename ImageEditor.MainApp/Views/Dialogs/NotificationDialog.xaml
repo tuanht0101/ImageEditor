@@ -1,0 +1,114 @@
+﻿<UserControl x:Class="ImageEditor.MainApp.Views.Dialogs.NotificationDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImageEditor.MainApp.Views.Dialogs"
+             xmlns:dt="clr-namespace:DiscordThemes.WPF;assembly=DiscordThemes.WPF"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="720" d:DesignWidth="1280"
+             d:DataContext="{d:DesignInstance local:NotificationDialog}"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             Focusable="False">
+    <UserControl.Resources>
+        <ExponentialEase x:Key="DialogEaseIn" EasingMode="EaseIn"/>
+        <ExponentialEase x:Key="DialogEaseOut" EasingMode="EaseOut"/>
+
+        <Storyboard x:Key="DialogLoadedSb" Duration="0:0:0.2">
+            <ColorAnimation Storyboard.TargetName="bg"
+                        Storyboard.TargetProperty="Color"
+                        Duration="0:0:0.2"
+                        From="#00000000"
+                        To="#D8000000"
+                        EasingFunction="{StaticResource DialogEaseIn}"/>
+            <DoubleAnimation Storyboard.TargetName="border"
+                         Storyboard.TargetProperty="Opacity"
+                         Duration="0:0:0.2"
+                         From="0"
+                         To="1"
+                         EasingFunction="{StaticResource DialogEaseIn}"/>
+            <DoubleAnimation Storyboard.TargetName="scaleTrans"
+                             Storyboard.TargetProperty="ScaleX"
+                             Duration="0:0:0.2"
+                             From="0"
+                             To="1"
+                             EasingFunction="{StaticResource DialogEaseIn}"/>
+            <DoubleAnimation Storyboard.TargetName="scaleTrans"
+                             Storyboard.TargetProperty="ScaleY"
+                             Duration="0:0:0.2"
+                             From="0"
+                             To="1"
+                             EasingFunction="{StaticResource DialogEaseIn}"/>
+        </Storyboard>
+
+        <Storyboard x:Key="DialogUnloadedSb" Duration="0:0:0.2">
+            <ColorAnimation Storyboard.TargetName="bg"
+                            Storyboard.TargetProperty="Color"
+                            Duration="0:0:0.2"
+                            To="#00000000"
+                            From="#D8000000"
+                            EasingFunction="{StaticResource DialogEaseOut}"/>
+            <DoubleAnimation Storyboard.TargetName="border"
+                             Storyboard.TargetProperty="Opacity"
+                             Duration="0:0:0.2"
+                             To="0"
+                             From="1"
+                             EasingFunction="{StaticResource DialogEaseOut}"/>
+            <DoubleAnimation Storyboard.TargetName="scaleTrans"
+                             Storyboard.TargetProperty="ScaleX"
+                             Duration="0:0:0.2"
+                             To="0"
+                             From="1"
+                             EasingFunction="{StaticResource DialogEaseOut}"/>
+            <DoubleAnimation Storyboard.TargetName="scaleTrans"
+                             Storyboard.TargetProperty="ScaleY"
+                             Duration="0:0:0.2"
+                             To="0"
+                             From="1"
+                             EasingFunction="{StaticResource DialogEaseOut}"/>
+        </Storyboard>
+        
+    </UserControl.Resources>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard Storyboard="{StaticResource DialogLoadedSb}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+    
+    <UserControl.Background>
+        <SolidColorBrush x:Name="bg" Color="#D8000000"/>
+    </UserControl.Background>
+
+    <Border x:Name="border"
+            Background="{StaticResource BackgroundTertiary}"
+            CornerRadius="8"
+            Padding="16"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            MinHeight="150"
+            MinWidth="300"
+            RenderTransformOrigin="0.5,0.5">
+        <Border.RenderTransform>
+            <ScaleTransform x:Name="scaleTrans" ScaleX="1" ScaleY="1"/>
+        </Border.RenderTransform>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Style="{StaticResource DiscordTextBlockBody1}"
+                       Text="{Binding Notification, Mode=OneWay}"
+                       FontSize="18"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+            
+            <Button Grid.Row="1"
+                    Content="Confirm"
+                    HorizontalAlignment="Center"
+                    Click="Close"/>
+        </Grid>
+    </Border>
+</UserControl>

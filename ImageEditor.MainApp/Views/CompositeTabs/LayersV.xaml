@@ -1,0 +1,243 @@
+﻿<UserControl x:Class="ImageEditor.MainApp.Views.CompositeTabs.LayersV"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImageEditor.MainApp.Views.CompositeTabs"
+             xmlns:vm="clr-namespace:ImageEditor.MainApp.ViewModels"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:dt="clr-namespace:DiscordThemes.WPF;assembly=DiscordThemes.WPF"
+             mc:Ignorable="d"
+             d:DesignHeight="235"
+             d:DesignWidth="317"
+             d:DataContext="{d:DesignInstance vm:LayersVM, IsDesignTimeCreatable=True}"
+             Background="{StaticResource BackgroundSecondary}">
+    <UserControl.DataContext>
+        <vm:LayersVM/>
+    </UserControl.DataContext>
+    
+    <d:DesignerProperties.DesignStyle>
+        <Style TargetType="{x:Type UserControl}">
+            <Setter Property="Background" Value="{StaticResource BackgroundPrimary}"/>
+            <Setter Property="Height" Value="200"/>
+            <Setter Property="Width" Value="300"/>
+        </Style>
+    </d:DesignerProperties.DesignStyle>
+    
+    <UserControl.Resources>
+        <Style x:Key="ButtonBar" TargetType="{x:Type Button}" BasedOn="{StaticResource DiscordButtonModifierIcon}">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <!--#region BUTTONS -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0"
+                        Orientation="Horizontal"
+                        Margin="2,0,0,0">
+                <ToggleButton x:Name="HighlightTBtn"
+                              Height="32"
+                              Width="32"
+                              IsChecked="{Binding IsHighlightRendered, Mode=OneWayToSource, FallbackValue=True}"
+                              Padding="5"
+                              ToolTip="Toggle Highlight">
+                    <ToggleButton.Style>
+                        <Style TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource DiscordToggleButtonModifierIcon}">
+                            <Style.Triggers>
+                                <Trigger Property="IsChecked" Value="False">
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <md:PackIcon Kind="BorderNoneVariant"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <md:PackIcon Kind="BorderAllVariant"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ToggleButton.Style>
+                </ToggleButton>
+
+                <Button Style="{StaticResource ButtonBar}"
+                        Command="{Binding UnselectLayerCommand}"
+                        ToolTip="Unselect Layer"
+                        Padding="7">
+                    <md:PackIcon Kind="SelectionOff"/>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal">
+                <Button Style="{StaticResource ButtonBar}"
+                        Command="{Binding DuplicateLayerCommand}"
+                        ToolTip="Duplicate">
+                    <md:PackIcon Kind="ContentCopy"/>
+                </Button>
+                <Button Style="{StaticResource ButtonBar}"
+                        Command="{Binding AddLayerCommand}"
+                        ToolTip="Add">
+                    <md:PackIcon Kind="Plus"/>
+                </Button>
+
+                <Button Style="{StaticResource ButtonBar}"
+                        Command="{Binding LayerMoveUpCommand}"
+                        ToolTip="Move Up"
+                        Padding="0,7,0,0">
+                    <md:PackIcon Kind="PanUp"/>
+                </Button>
+
+                <Button Style="{StaticResource ButtonBar}"
+                        Command="{Binding LayerMoveDownCommand}"
+                        ToolTip="Move Down"
+                        Padding="0,0,0,7">
+                    <md:PackIcon Kind="PanDown"/>
+                </Button>
+
+                <Button Style="{StaticResource ButtonBar}"
+                        Command="{Binding DeleteLayerCommand}"
+                        ToolTip="Delete">
+                    <md:PackIcon Kind="Delete"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+        <!--#endregion-->
+
+        
+        <dt:ScrollViewer Grid.Row="1"
+                         IsOverlapV="True"
+                         MarginV="0">
+            <ListBox x:Name="LayersBox"
+                     ItemsSource="{Binding ImageLayers, Mode=OneWay}"
+                     SelectedItem="{Binding SelectedImageLayer, Mode=OneWayToSource}"
+                     SelectedIndex="{Binding SelectedLayerIndex, Mode=TwoWay}"
+                     SelectionChanged="RaiseSelectedLayerChanged">
+                <ListBox.Style>
+                    <Style TargetType="{x:Type ListBox}">
+                        <Setter Property="OverridesDefaultStyle" Value="True"/>
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        
+                        <Setter Property="ItemContainerStyle">
+                            <Setter.Value>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="Background" Value="{StaticResource BackgroundSecondary}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource InteractiveNormal}"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        Padding="10,6,10,6">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource BackgroundSecondaryAlt}"/>
+                                            <Setter Property="Cursor" Value="Arrow"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Setter.Value>
+                        </Setter>
+                        
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBox}">
+                                    <Border Background="{TemplateBinding Background}">
+                                        <StackPanel IsItemsHost="True"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.Style>
+                
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel>
+                            <ToggleButton DockPanel.Dock="Left"
+                                          IsChecked="{Binding IsVisible, Mode=TwoWay}"
+                                          Margin="0,0,8,0"
+                                          Padding="4">
+                                <ToggleButton.Style>
+                                    <Style TargetType="{x:Type ToggleButton}"
+                                           BasedOn="{StaticResource DiscordToggleButtonModifierIcon}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsChecked" Value="False">
+                                                <Setter Property="Content">
+                                                    <Setter.Value>
+                                                        <md:PackIcon Kind="EyeOff"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter Property="Content">
+                                                    <Setter.Value>
+                                                        <md:PackIcon Kind="Eye"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ToggleButton.Style>
+                            </ToggleButton>
+                            
+                            <TextBox Text="{Binding Name, Mode=TwoWay}"
+                                     Margin="0,0,0,2"
+                                     HorizontalAlignment="Left"
+                                     VerticalAlignment="Center">
+                                <TextBox.Style>
+                                    <Style TargetType="{x:Type TextBox}">
+                                        <Setter Property="Foreground" Value="{StaticResource TextNormal}"/>
+                                        <Setter Property="CaretBrush" Value="{StaticResource TextNormal}"/>
+                                        <Setter Property="Cursor" Value="IBeam"/>
+                                        <Setter Property="FontFamily" Value="{StaticResource Whitney}"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type TextBox}">
+                                                    <Border Background="Transparent">
+                                                        <ScrollViewer x:Name="PART_ContentHost"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                            
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                
+            </ListBox>
+        </dt:ScrollViewer>
+    </Grid>
+</UserControl>
