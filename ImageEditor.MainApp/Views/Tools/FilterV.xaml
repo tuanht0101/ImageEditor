@@ -81,10 +81,6 @@
                                          Value="5">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding ElementName=FilterCBox, Path=SelectedIndex}"
-                                         Value="6">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </DockPanel.Style>

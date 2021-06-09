@@ -51,7 +51,7 @@ namespace ImageEditor.MainApp.Views.Tools.Filters
                 () =>
                 {
                     IsProcessingEnabled = false;
-                    Brightness = 0;
+                    Brightness = 100;
                     Contrast = 0;
                 }
                 );
